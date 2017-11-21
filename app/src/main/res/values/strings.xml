@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Clinic Quiz</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
+    <string name="menucolor">Do you want to take the Colorblind Test?</string>
+    <string name="menuiq">Do you want to take the IQ Test?</string>
+    <string name="exit">Do you really wish to quit Clinic Quiz?</string>
+</resources>
