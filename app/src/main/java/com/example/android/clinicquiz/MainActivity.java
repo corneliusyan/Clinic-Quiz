@@ -6,8 +6,10 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.media.Image;
 import android.media.MediaPlayer;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -42,16 +44,17 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout chatbox;
     private Button btniq;
     private Button btncolor;
-    int soal=2,nomor=1,benar=0,iq;
-    MediaPlayer bgmstart,quiz_start,cancel,select,next,betul,salah,bgmloop;
+    int soal=2,nomor=1,benar=0,iq,sec=0;
+    MediaPlayer bgmstart,quiz_start,cancel,select,next,betul,salah,bgmloop,voice;
     boolean beforeloop=true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         quiz_start = MediaPlayer.create(getApplicationContext(), R.raw.quiz_start);
-        bgmstart = MediaPlayer.create(getApplicationContext(), R.raw.menu_voice);
+        bgmstart = MediaPlayer.create(getApplicationContext(), R.raw.voice);
         bgmloop = MediaPlayer.create(getApplicationContext(), R.raw.menu);
+        voice = MediaPlayer.create(getApplicationContext(), R.raw.voice);
         cancel = MediaPlayer.create(getApplicationContext(), R.raw.cancel);
         next = MediaPlayer.create(getApplicationContext(), R.raw.next);
         select = MediaPlayer.create(getApplicationContext(), R.raw.select);
@@ -77,25 +80,51 @@ public class MainActivity extends AppCompatActivity {
         chatbox=(RelativeLayout) findViewById(R.id.chatbox);
         btniq=(Button) findViewById(R.id.btniq);
         btncolor=(Button) findViewById(R.id.btncolor);
-        Timer timerbgm = new Timer();
-        timerbgm.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                beforeloop=false;
-                bgmstart.release();
-                bgmloop.start();
-                bgmloop.setLooping(true);
-            }
-        },142*1000);
-
         try {
             bgmstart.prepareAsync();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
         bgmstart.start();
-        bgmstart.setLooping(true);
-
+        bgmloop.start();
+        bgmloop.setLooping(true);
+        new CountDownTimer(6000,200){
+            @Override
+            public void onTick(long l)
+            {
+                sec++;
+                if(sec==4)
+                {
+                    suster.setVisibility(View.VISIBLE);
+                }
+                else if(sec==7)
+                {
+                    chatbox.setVisibility(View.VISIBLE);
+                }
+                else if(sec==9)
+                {
+                    suster.setImageResource(R.drawable.susterawal);
+                    btnskip.setVisibility(View.VISIBLE);
+                    lblchat.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void onFinish()
+            {
+                gbrmenu.setVisibility(View.VISIBLE);
+                btnskip.setVisibility(View.INVISIBLE);
+                suster.setImageResource(R.drawable.suster1);
+            }
+        }.start();
+        btnskip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gbrmenu.setVisibility(View.VISIBLE);
+                btnskip.setVisibility(View.INVISIBLE);
+                suster.setImageResource(R.drawable.suster1);
+                bunyi(next);
+            }
+        });
         btnexit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,25 +210,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        if(beforeloop)
-        {
-            if (bgmstart != null) bgmstart.pause();
-        }
-        else
-        {
-            if (bgmloop != null) bgmloop.pause();
-        }
+        if (bgmloop != null) bgmloop.pause();
     }
     public void onResume() {
         super.onResume();
-        if(beforeloop)
-        {
-            bgmstart.start();
-        }
-        else
-        {
-            bgmloop.start();
-        }
+        bgmloop.start();
         hapusStatusBar();
     }
     public void prosesSoal(boolean yes)
@@ -279,26 +294,23 @@ public class MainActivity extends AppCompatActivity {
             else if(nomor-1==8){
                 if(yes){
                     prosesSalah(); bunyi(salah);
-                    lblsoal.setText("Incorrect !\nPeople with normal vision shouldn't be able to see any number. Those with red green color blindness should see a 5.");
+                    lblsoal.setText("Incorrect !\nPeople with normal vision shouldn't be able to see any number. Those with red green color blindness will see 5.");
                 }
                 else{
                     benar++; bunyi(betul);
                     prosesSalah();
-                    lblsoal.setText("Correct !\nPeople with normal vision shouldn't be able to see any number. Those with red green color blindness should see a 5.");
-
-                    //nextSoal();
+                    lblsoal.setText("Correct !\nPeople with normal vision shouldn't be able to see any number. Those with red green color blindness will see 5.");
                 }
             }
             else if(nomor-1==9){
                 if(yes){
                     prosesSalah(); bunyi(salah);
-                    lblsoal.setText("Incorrect !\nPeople with normal vision shouldn't be able to see any number. Those with red green color blindness should see a 45.");
+                    lblsoal.setText("Incorrect !\nPeople with normal vision shouldn't be able to see any number. Those with red green color blindness will see 45.");
                 }
                 else{
                     benar++; bunyi(betul);
                     prosesSalah();
-                    lblsoal.setText("Correct !\nPeople with normal vision shouldn't be able to see any number. Those with red green color blindness should see a 45.");
-                    //nextSoal();
+                    lblsoal.setText("Correct !\nPeople with normal vision shouldn't be able to see any number. Those with red green color blindness will see 45.");
                 }
             }
             else if(nomor-1==10){
@@ -576,30 +588,35 @@ public class MainActivity extends AppCompatActivity {
             {
                 lblnomor.setText("3");
                 gbrsoal.setImageResource(R.drawable.s1_easy);
+
                 lblsoal.setText("2 - 3 - 6 - 7 - 8 - 14 - 15 – 30.\n30 doesn’t belong to the series.");
             }
             else if(nomor==4)
             {
                 lblnomor.setText("4");
                 gbrsoal.setImageResource(R.drawable.s1_easy);
+
                 lblsoal.setText("If you rearrange the letters \"TNHESLRNEAD\" you have the name of a country.");
             }
             else if(nomor==5)
             {
                 lblnomor.setText("5");
                 gbrsoal.setImageResource(R.drawable.s1_easy);
+
                 lblsoal.setText("The number that is 1/4 of 1/2 of 1/5 of 200 is 5.");
             }
             else if(nomor==6)
             {
                 lblnomor.setText("6");
                 gbrsoal.setImageResource(R.drawable.s1_easy);
+
                 lblsoal.setText("121 – 144 – 169 – 196 – 235\nThe sequence above  is right.");
             }
             else if(nomor==7)
             {
                 lblnomor.setText("7");
                 gbrsoal.setImageResource(R.drawable.s1_easy);
+
                 lblsoal.setText("X – 10 – 19 – 32 – 49 – 70 – 95\n X is 5.");
             }
             else if(nomor==8)
